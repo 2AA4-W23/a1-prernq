@@ -1,0 +1,5 @@
+package pk;
+
+public enum FortuneCards {
+    TREASURECHEST, CAPTAIN, SORCERESS, SEABATTLE, GOLD, DIAMOND, MONKEYBUSINESS, SKULLS
+}
