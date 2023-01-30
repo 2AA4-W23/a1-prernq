@@ -15,8 +15,6 @@
     * `mvn package`
   * To run the packaged delivery:
     * `java -jar target/piraten-karpen-jar-with-dependencies.jar` 
-  * To run the project in trace mode:
-    * `
 
 Remark: **We are assuming here you are using a _real_ shell (e.g., anything but PowerShell on Windows)**
 
@@ -32,16 +30,10 @@ Remark: **We are assuming here you are using a _real_ shell (e.g., anything but 
 | MVP? | Id  | Feature  | Status  |  Started  | Delivered |
 | :-:  |:-:  |---       | :-:     | :-:       | :-:       |
 | x   | F01 | Roll a dice |  S | 01/01/23 |  |
-| x   | F02 | Roll eight dices  |  S (F01) |   |
-| x   | F03 | Select how many games as command-line arg.  |  D  |   |
-| x   | F04 | end of game with three cranes | S | |
-| x   | F05 | Player keeping random dice at their turn | S (F02) | | 
-| x   | F06 | Score points: 3-of-a-kind | S (F04) | | 
-| -   | F07 | Score points: 4-of-a-kind | S (F04) | |
-| -   | F08 | Score points: 5-of-a-kind | S (F04) | |
-| -   | F09 | Score points: 6-of-a-kind | S (F04) | |
-| -   | F10 | Score points: 7-of-a-kind | S (F04) | |
-| -   | F11 | Score points: 8-of-a-kind | S (F04) | |
-| -   | F12 | Score points: diamonds and gold | S (F04) | |
-
+| x   | F02 | Roll eight dices  |  B (F01) |   |
+| x   | F03 | Select how many games as command-line arg.  |  P  |   |
+| x   | F04 | end of game with three cranes | P | |
+| x   | F05 | Player keeping random dice at their turn | B (F02) | | 
+| x   | F06 | Score points: 3-of-a-kind | B (F04) | | 
+| ... | ... | ... |
 
