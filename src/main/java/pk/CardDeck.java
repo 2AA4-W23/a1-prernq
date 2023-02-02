@@ -1,18 +1,21 @@
 package pk;
-import java.util.Random;
+//import java.util.Random;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
+
 
 public class CardDeck {
     private FortuneCards[] deck = new FortuneCards[35];
     private int deckIndex = 0;
 
     public FortuneCards draw(){
+        // if the deck runs out of cards, new deck will be created
         if (deckIndex == deck.length-1) {
             make_and_shuffle();
             deckIndex=0;
         }
+        
         FortuneCards card = deck[deckIndex++];
 
         return card;
@@ -24,6 +27,7 @@ public class CardDeck {
         int seabattleCount = 0;
 
         for(int i =0; i < 35; i++){
+            
             if(seabattleCount< 2){
                 deck[i] = FortuneCards.SEABATTLE_2;
                 seabattleCount +=1;
@@ -44,11 +48,13 @@ public class CardDeck {
                 deck[i] = FortuneCards.NOP;
             }
         }
+
         //System.out.println("  (DEBUG) deck made = " + Arrays.toString(deck));
         List<FortuneCards> deckList = Arrays.asList(deck);
 		Collections.shuffle(deckList);
 		deckList.toArray(deck);
         //System.out.println("  (DEBUG) deck shuffled = " + Arrays.toString(deck));
+        
         return deck;
     }
 

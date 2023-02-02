@@ -1,12 +1,12 @@
 package pk;
 //import pk.Dice;
 //import pk.Faces;
-import java.util.Scanner;
+//import java.util.Scanner;
 import java.util.Arrays;
 import java.util.Random;
 
 public class game {
-    private static Scanner input;
+    //private static Scanner input;
 
     //rolls eight die
     public static Faces[] roll_eight() { 
@@ -25,26 +25,42 @@ public class game {
     public static void random_turn(Player player){
         Faces[] die = player.getdie();
         Boolean end =  end_game(die);
-        Random motive = new Random();
+        Random motive= new Random();
+        Boolean[] motive_arr = new Boolean[8];
         System.out.println("  (DEBUG) endgame? " + end);
+        int num_to_reroll = 0;
 
-        while(end_game(die) == false){
-            for(int i=0; i < die.length; i++){
-                if(end_game(die) == false){
-                    //System.out.println("here");
-                    //System.out.println("motive " + motive);
-                    if(die[i] != Faces.SKULL && motive.nextBoolean()){
-                        die[i] = reroll();
-                        System.out.println("rerolled at index " + i);
-                        System.out.println("  (DEBUG) new roll " + Arrays.toString(die));
+        //picks which die to keep and which to reroll randomly
+        for(int i = 0; i < 8; i++){
+            motive_arr[i] = motive.nextBoolean();
+            if(motive_arr[i] == true && die[i] != Faces.SKULL){
+                num_to_reroll += 1;
+
+            } 
+        }
+        if(num_to_reroll >= 2){
+            if(end_game(die) == false){
+                for(int i=0; i < die.length; i++){
+                    if(end_game(die) == false){
+                        //System.out.println("here");
+                        //System.out.println("motive " + motive);
+                        if(die[i] != Faces.SKULL && motive_arr[i]){
+                            die[i] = reroll();
+                            System.out.println("rerolled at index " + i);
+                            System.out.println("  (DEBUG) new roll " + Arrays.toString(die));
+                        }    
                     }
                 }
             }
         }
+        
         player.updatedie(die);
         System.out.println("here");
-
-        score(player);
+        
+        //if the player roll 3 skull --> scores
+        if(!end_game(die)){
+            score(player);
+        }
         return;
     }
 
@@ -54,7 +70,7 @@ public class game {
     public static void combo_turn(Player player){
         System.out.println("got to here");
         Faces[] rolled = player.getdie();
-        Boolean end = end_game(rolled);
+        //Boolean end = end_game(rolled);
         Faces common = Faces.DIAMOND;
 
         int sabercount = 0;
@@ -62,6 +78,7 @@ public class game {
         int parrotcount = 0;
         int goldcount = 0;
         int diamondcount = 0;
+        int skullcount = 0;
 
         for(int i=0; i <8; i++){
             if(rolled[i] == Faces.SABER){
@@ -74,28 +91,35 @@ public class game {
                 goldcount += 1;
             }else if(rolled[i] == Faces.DIAMOND){
                 diamondcount += 1;
+            }else{
+                skullcount += 1;
             }
         }
         System.out.println("got to here 2");
         
         int[] counts = {sabercount, monkeycount, parrotcount, goldcount, diamondcount};
         Arrays.sort(counts);
-        
-        if(counts[4] == sabercount){
+
+        if(player.getcard() == FortuneCards.SEABATTLE_2 || player.getcard() == FortuneCards.SEABATTLE_3 || player.getcard() == FortuneCards.SEABATTLE_4){
             common = Faces.SABER;
-        }else if(counts[4] == monkeycount){
-            common = Faces.MONKEY;
-        }else if(counts[4] == parrotcount){
-            common = Faces.PARROT;
-        }else if(counts[4] == goldcount){
-            common = Faces.GOLD;
-        }else if(counts[4] == diamondcount){
-            common = Faces.DIAMOND;
+        }else {
+            if(counts[4] == sabercount){
+                common = Faces.SABER;
+            }else if(counts[4] == monkeycount){
+                common = Faces.MONKEY;
+            }else if(counts[4] == parrotcount){
+                common = Faces.PARROT;
+            }else if(counts[4] == goldcount){
+                common = Faces.GOLD;
+            }else if(counts[4] == diamondcount){
+                common = Faces.DIAMOND;
+            }
         }
         
-        while(end_game(rolled) == false){
+        
+        if(end_game(rolled) == false && skullcount <= 2){
             for(int i=0; i < rolled.length; i++){
-                System.out.print("your mom");
+                System.out.print("here 3");
                 if(end_game(rolled)== false){
                     if(rolled[i] != Faces.SKULL && rolled[i] != common){
                         rolled[i] = reroll();
@@ -103,8 +127,14 @@ public class game {
                 }
             }
         }
+        
         player.updatedie(rolled);
-        score(player);
+
+        if(end_game(rolled) == false){
+            score(player);
+        }
+
+        return;
     }
 
 
@@ -229,6 +259,7 @@ public class game {
             parrotcount = 0;
         }
 
+        //for each set of identical objects, calculates the score
         if(sabercount == 3){score += 100; generatedcount +=3;}
         if(sabercount == 4){score += 200; generatedcount +=4;}
         if(sabercount == 5){score += 500; generatedcount +=5;}
@@ -264,6 +295,7 @@ public class game {
         if(diamondcount == 7){score += 2000; generatedcount +=7;}
         if(diamondcount == 8){score += 4000; generatedcount +=8;}
 
+        // if all 8 die generated a score, 500 more points awarded
         if(generatedcount == 8){score += 500;}
 
         score += (goldcount + diamondcount)*100;
@@ -275,6 +307,8 @@ public class game {
 
     //main function, runs all turns
     public static void main(String strat){
+        strat.toLowerCase();
+        
         int numofgames = num_games();
         CardDeck deck = new CardDeck();
         deck.make_and_shuffle();
@@ -378,8 +412,10 @@ public class game {
                 }
                 System.out.println("player 1 wins: " + player1.getwins());
                 System.out.println("player 2 wins: " + player2.getwins());
+                System.out.println("player 1 win percentage: " + (player1.getwins()/42) + "%");
+                System.out.println("player 2 win percentage: " + (player2.getwins()/42) + "%");
 
-                player1.updatescore(numofgames); //maven is skipping so do this to avoid, reset after
+                player1.updatescore(numofgames); //interations skipping so do this to avoid, reset after
                 player1.reset();
                 player2.reset();
                 numofgames--;
