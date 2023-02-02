@@ -23,44 +23,55 @@ public class game {
 
     //plays a turn using random strategy
     public static void random_turn(Player player){
+        
         Faces[] die = player.getdie();
-        Boolean end =  end_game(die);
         Random motive= new Random();
         Boolean[] motive_arr = new Boolean[8];
-        System.out.println("  (DEBUG) endgame? " + end);
         int num_to_reroll = 0;
 
         //picks which die to keep and which to reroll randomly
         for(int i = 0; i < 8; i++){
             motive_arr[i] = motive.nextBoolean();
+            
             if(motive_arr[i] == true && die[i] != Faces.SKULL){
                 num_to_reroll += 1;
-
             } 
         }
+        
         if(num_to_reroll >= 2){
+            System.out.println("The player chose to reroll.");
+            
             if(end_game(die) == false){
                 for(int i=0; i < die.length; i++){
                     if(end_game(die) == false){
                         //System.out.println("here");
                         //System.out.println("motive " + motive);
+                        
                         if(die[i] != Faces.SKULL && motive_arr[i]){
                             die[i] = reroll();
-                            System.out.println("rerolled at index " + i);
-                            System.out.println("  (DEBUG) new roll " + Arrays.toString(die));
+                            //System.out.println("rerolled at index " + i);
+                            //System.out.println("  (DEBUG) new roll " + Arrays.toString(die));
                         }    
                     }
                 }
             }
+            
+            player.updatedie(die);
+            System.out.println("The players new die are: " + Arrays.toString(player.getdie()));
+        
+        }else{
+            System.out.println("The player chose not to reroll.");
         }
         
-        player.updatedie(die);
-        System.out.println("here");
         
         //if the player roll 3 skull --> scores
         if(!end_game(die)){
             score(player);
+        
+        }else {
+            System.out.println("The player rolled 3 skulls -> turn over, no points awarded.");
         }
+        
         return;
     }
 
@@ -68,9 +79,7 @@ public class game {
 
     //plays using combo-driven strategy
     public static void combo_turn(Player player){
-        System.out.println("got to here");
         Faces[] rolled = player.getdie();
-        //Boolean end = end_game(rolled);
         Faces common = Faces.DIAMOND;
 
         int sabercount = 0;
@@ -95,13 +104,13 @@ public class game {
                 skullcount += 1;
             }
         }
-        System.out.println("got to here 2");
         
         int[] counts = {sabercount, monkeycount, parrotcount, goldcount, diamondcount};
         Arrays.sort(counts);
 
         if(player.getcard() == FortuneCards.SEABATTLE_2 || player.getcard() == FortuneCards.SEABATTLE_3 || player.getcard() == FortuneCards.SEABATTLE_4){
             common = Faces.SABER;
+        
         }else {
             if(counts[4] == sabercount){
                 common = Faces.SABER;
@@ -119,19 +128,26 @@ public class game {
         
         if(end_game(rolled) == false && skullcount <= 2){
             for(int i=0; i < rolled.length; i++){
-                System.out.print("here 3");
                 if(end_game(rolled)== false){
                     if(rolled[i] != Faces.SKULL && rolled[i] != common){
                         rolled[i] = reroll();
                     }
                 }
             }
+            
+            System.out.println("The players new die are: " + Arrays.toString(rolled));
+        
+        }else{
+            System.out.println("The player chose not to reroll their die.");
         }
         
         player.updatedie(rolled);
 
         if(end_game(rolled) == false){
             score(player);
+        
+        }else{
+            System.out.println("The player rolled 3 skulls -> turn over, no points awarded.");
         }
 
         return;
@@ -218,6 +234,7 @@ public class game {
         int goldcount = 0;
         int diamondcount = 0;
 
+        //counts number of each die rolled
         for(int i=0; i <8; i++){
             if(rolled[i] == Faces.SABER){
                 sabercount += 1;
@@ -297,7 +314,6 @@ public class game {
 
         // if all 8 die generated a score, 500 more points awarded
         if(generatedcount == 8){score += 500;}
-
         score += (goldcount + diamondcount)*100;
 
         player.updatescore(score);
@@ -318,34 +334,41 @@ public class game {
 
 
         if(strat == "random random"){
+            System.out.println("\nPlayer 1 and Player 2 are playing by the Random Strategy.");
+            
             while(numofgames >= 1){
-                System.out.println("  (DEBUG) num of games = " + numofgames);
+                //System.out.println("  (DEBUG) num of games = " + numofgames);
                 while(player1.getscore() < 6000 && player2.getscore() < 6000){
                     player1.updatedie(roll_eight());
-                    System.out.println("  (DEBUG) player1 rolled " + Arrays.toString(player1.getdie()));
+                    System.out.println("Player 1 rolled " + Arrays.toString(player1.getdie()));
                     player1.updatecard(deck.draw());
-                    System.out.println("  (DEBUG) player1 drew " + player1.getcard());
+                    System.out.println("Player 1 drew " + player1.getcard());
                     random_turn(player1);
-                    System.out.println("  (DEBUG) player1 score " + player1.getscore());
+                    System.out.println("Player 1's currect score is " + player1.getscore());
 
                     if(player1.getscore() < 6000){
                         player2.updatedie(roll_eight());
+                        System.out.println("Player 2 rolled " + Arrays.toString(player2.getdie()));
                         player2.updatecard(deck.draw());
+                        System.out.println("Player 2 drew " + player2.getcard());
                         random_turn(player2);
-                        System.out.println("  (DEBUG) player2 score " + player2.getscore());
+                        System.out.println("Player 2's currect score is " + player2.getscore());
                     }
                 }
 
                 if(player1.getscore() >= 6000){
+                    System.out.println("\nPlayer 1 won the game!");
                     player1.updatewins();
                 }else if(player2.getscore() >= 6000){
+                    System.out.println("\nPlayer 2 won the game!");
                     player2.updatewins();
                 }else{
+                    System.out.println("\nBoth players won the game!");
                     player1.updatewins();
                     player2.updatewins();
                 }
-                System.out.println("player 1 wins: " + player1.getwins());
-                System.out.println("player 2 wins: " + player2.getwins());
+                System.out.println("\nPlayer 1 current wins: " + player1.getwins());
+                System.out.println("Player 2 current wins: " + player2.getwins());
                 player1.updatescore(numofgames); //maven is skipping so do this to avoid, reset after
                 player1.reset();
                 player2.reset();
@@ -353,67 +376,79 @@ public class game {
             }
 
         }else if((strat =="random combo") || (strat == "combo random")){
+            System.out.println("\nPlayer 1 is playing randomly and Player 2 is playing combo-driven.");
             while(numofgames >= 1){
                 while(player1.getscore() < 6000 && player2.getscore() < 6000){
                     player1.updatedie(roll_eight());
-                    System.out.println("  (DEBUG) player1 rolled " + Arrays.toString(player1.getdie()));
+                    System.out.println("Player 1 rolled " + Arrays.toString(player1.getdie()));
                     player1.updatecard(deck.draw());
-                    System.out.println("  (DEBUG) player1 drew " + player1.getcard());
+                    System.out.println("Player 1 drew " + player1.getcard());
                     random_turn(player1);
-                    System.out.println("  (DEBUG) player1 score " + player1.getscore());
+                    System.out.println("Player 1's current score is " + player1.getscore());
                     
                     if(player1.getscore() < 6000){
                         player2.updatedie(roll_eight());
-                        System.out.println("  (DEBUG) player2 rolled " + Arrays.toString(player2.getdie()));
+                        System.out.println("Player 2 rolled " + Arrays.toString(player2.getdie()));
                         player2.updatecard(deck.draw());
-                        System.out.println("  (DEBUG) player2 drew " + player2.getcard());
+                        System.out.println("Player 2 drew " + player2.getcard());
                         combo_turn(player2);
-                        System.out.println("  (DEBUG) player2 score " + player2.getscore());
+                        System.out.println("Player 2's current score is " + player2.getscore());
                     }
 
                 }
                  if(player1.getscore() >= 6000){
+                    System.out.println("\nPlayer 1 won the game!");
                     player1.updatewins();
                 }else if(player2.getscore() >= 6000){
+                    System.out.println("\nPlayer 2 won the game!");
                     player2.updatewins();
                 }else{
+                    System.out.println("\nBoth players won the game!");
                     player1.updatewins();
                     player2.updatewins();
                 }
                 player1.updatescore(numofgames); //maven is skipping so do this to avoid, reset after
-                System.out.println("player 1 wins: " + player1.getwins());
-                System.out.println("player 2 wins: " + player2.getwins());
+                System.out.println("\nPlayer 1 current wins: " + player1.getwins());
+                System.out.println("Player 2 current wins: " + player2.getwins());
                 player1.reset();
                 player2.reset();
                 numofgames--;
             }
 
         }else if(strat =="combo combo"){
+            System.out.println("\nPlayer 1 and Player 2 are both playing combo-driven.");
             while(numofgames >= 1){
                 while(player1.getscore() < 6000 && player2.getscore() < 6000){
                     player1.updatedie(roll_eight());
+                    System.out.println("Player 1 rolled " + Arrays.toString(player1.getdie()));
                     player1.updatecard(deck.draw());
+                    System.out.println("Player 1 drew " + player1.getcard());
                     combo_turn(player1);
-                    
+                    System.out.println("Player 1's current score is " + player1.getscore());
+
                     if(player1.getscore() < 6000){
                         player2.updatedie(roll_eight());
+                        System.out.println("Player 2 rolled " + Arrays.toString(player2.getdie()));
                         player2.updatecard(deck.draw());
+                        System.out.println("Player 2 drew " + player2.getcard());
                         combo_turn(player2);
+                        System.out.println("Player 2's current score is " + player2.getscore());
                     }
 
                 }
                  if(player1.getscore() >= 6000){
+                    System.out.println("\nPlayer 1 won the game!");
                     player1.updatewins();
                 }else if(player2.getscore() >= 6000){
+                    System.out.println("\nPlayer 2 won the game!");
                     player2.updatewins();
                 }else{
+                    System.out.println("Both players won the game!");
                     player1.updatewins();
                     player2.updatewins();
                 }
-                System.out.println("player 1 wins: " + player1.getwins());
-                System.out.println("player 2 wins: " + player2.getwins());
-                System.out.println("player 1 win percentage: " + (player1.getwins()/42) + "%");
-                System.out.println("player 2 win percentage: " + (player2.getwins()/42) + "%");
+                System.out.println("\nPlayer 1 current wins: " + player1.getwins());
+                System.out.println("\nPlayer 2 current wins: " + player2.getwins());
 
                 player1.updatescore(numofgames); //interations skipping so do this to avoid, reset after
                 player1.reset();
@@ -421,8 +456,16 @@ public class game {
                 numofgames--;
             }
 
+        }else{
+            System.out.println("Not valid argument. Terminating.");
         }
 
+        double winpercent1 = ((player1.getwins())/42.0)*100.0;
+        double winpercent2 = ((player2.getwins())/42.0)*100.0;
+        System.out.printf("\n\nPlayer 1 win percentage: %2.2f", winpercent1);
+        System.out.print("%");
+        System.out.printf("\nPlayer 2 win percentage: %2.2f", winpercent2);
+        System.out.print("%");
 
     }
 }
